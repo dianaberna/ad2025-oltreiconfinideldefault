@@ -119,24 +119,25 @@
         </button>
 
         <ul id="mainMenu" role="menu" hidden>
-            <li><a href="" role="menuitem" >Dashboard</a></li>
+            <li><a href="" role="menuitem">Dashboard</a></li>
 
             <li aria-haspopup="true" aria-expanded="false">
-                <button role="menuitem" >
+                <button role="menuitem">
                     Gestione contenuti
                     <span class="submenu-icon" aria-hidden="true">▶</span>
                 </button>
                 <ul role="menu" hidden>
-                    <li><a href="#" role="menuitem" >Categorie</a></li>
-                    <li><a href="#" role="menuitem" >Tag</a></li>
+                    <li><a href="#" role="menuitem">Categorie</a></li>
+                    <li><a href="#" role="menuitem">Tag</a></li>
+
                 </ul>
             </li>
 
-            <li><a href="#" role="menuitem" >Impostazioni</a></li>
-            <li><a href="#" role="menuitem" >Logout</a></li>
+            <li><a href="#" role="menuitem">Impostazioni</a></li>
+            <li><a href="#" role="menuitem">Logout</a></li>
         </ul>
 
-        <a href="#">prova</a>
+        <a href="#">Link di prova per focus</a>
     </div>
 
     <script>
@@ -147,7 +148,7 @@
             if (menu) {
                 menu.hidden = false;
                 if (controller) controller.setAttribute('aria-expanded', 'true');
-                
+
             }
         }
 
@@ -155,7 +156,7 @@
             if (menu) {
                 menu.hidden = true;
                 if (controller) controller.setAttribute('aria-expanded', 'false');
-                
+
             }
         }
 
