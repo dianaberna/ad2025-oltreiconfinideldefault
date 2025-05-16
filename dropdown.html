@@ -135,6 +135,8 @@
             <li><a href="#" role="menuitem" >Impostazioni</a></li>
             <li><a href="#" role="menuitem" >Logout</a></li>
         </ul>
+
+        <a href="#">prova</a>
     </div>
 
     <script>
@@ -145,7 +147,7 @@
             if (menu) {
                 menu.hidden = false;
                 if (controller) controller.setAttribute('aria-expanded', 'true');
-                updateTabIndex(menu, true);
+                
             }
         }
 
@@ -153,13 +155,8 @@
             if (menu) {
                 menu.hidden = true;
                 if (controller) controller.setAttribute('aria-expanded', 'false');
-                updateTabIndex(menu, false);
+                
             }
-        }
-
-        function updateTabIndex(menu, enable) {
-            const items = menu.querySelectorAll('[role="menuitem"]');
-            items.forEach(item => item.setAttribute('tabindex', enable ? '0' : '-1'));
         }
 
         function getMenuItems(menu) {
