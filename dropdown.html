@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Esempio Dropdown Accessibile</title>
+    <style>
+        :root {
+            --accent-color: #006c8c;
+            --accent-bg: #e0f3f9;
+            --text-color: #1a1a1a;
+            --off-bg: #a9a9a9;
+            --knob-color: #fff;
+            --focus-ring: #003d4c;
+        }
+
+        body {
+            font-family: sans-serif;
+            background: #fff;
+            color: var(--text-color);
+            padding: 2rem;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:focus {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        .menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        [role="menu"] {
+            background-color: var(--accent-bg);
+            border: 1px solid var(--accent-color);
+            padding: 0.5rem 0;
+            list-style: none;
+            position: absolute;
+            margin: 0;
+            min-width: 220px;
+            z-index: 100;
+        }
+
+        [role="menu"][hidden] {
+            display: none;
+        }
+
+        [role="menuitem"] {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            text-align: left;
+            font: inherit;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        a[role="menuitem"] {
+            width: 86%;
+        }
+
+        button[role="menuitem"] {
+            width: 100%;
+        }
+
+        [role="menuitem"]:hover,
+        [role="menuitem"]:focus {
+            background-color: var(--accent-color);
+            color: var(--knob-color);
+            outline: none;
+            box-shadow: inset 0 0 0 2px var(--focus-ring);
+        }
+
+        [role="menuitem"]:hover .submenu-icon,
+        [role="menuitem"]:focus .submenu-icon {
+            color: var(--knob-color);
+        }
+
+        .submenu-icon {
+            margin-left: 0.5em;
+            font-size: 0.8em;
+            color: var(--text-color);
+        }
+
+        li[aria-haspopup="true"] {
+            position: relative;
+        }
+
+        li[aria-haspopup="true"]>ul {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            margin-left: 0.2rem;
+            z-index: 110;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Menu di navigazione - CMS</h1>
+
+    <div class="menu-container">
+        <button id="menuButton" aria-haspopup="true" aria-expanded="false" aria-controls="mainMenu">
+            Apri menu
+        </button>
+
+        <ul id="mainMenu" role="menu" hidden>
+            <li><a href="" role="menuitem" tabindex="-1">Dashboard</a></li>
+
+            <li aria-haspopup="true" aria-expanded="false">
+                <button role="menuitem" tabindex="-1">
+                    Gestione contenuti
+                    <span class="submenu-icon" aria-hidden="true">▶</span>
+                </button>
+                <ul role="menu" hidden>
+                    <li><a href="#" role="menuitem" tabindex="-1">Categorie</a></li>
+                    <li><a href="#" role="menuitem" tabindex="-1">Tag</a></li>
+                </ul>
+            </li>
+
+            <li><a href="#" role="menuitem" tabindex="-1">Impostazioni</a></li>
+            <li><a href="#" role="menuitem" tabindex="-1">Logout</a></li>
+        </ul>
+    </div>
+
+    <script>
+        const menuButton = document.getElementById('menuButton');
+        const mainMenu = document.getElementById('mainMenu');
+
+        function openMenu(menu, controller) {
+            if (menu) {
+                menu.hidden = false;
+                if (controller) controller.setAttribute('aria-expanded', 'true');
+                updateTabIndex(menu, true);
+            }
+        }
+
+        function closeMenu(menu, controller) {
+            if (menu) {
+                menu.hidden = true;
+                if (controller) controller.setAttribute('aria-expanded', 'false');
+                updateTabIndex(menu, false);
+            }
+        }
+
+        function updateTabIndex(menu, enable) {
+            const items = menu.querySelectorAll('[role="menuitem"]');
+            items.forEach(item => item.setAttribute('tabindex', enable ? '0' : '-1'));
+        }
+
+        function getMenuItems(menu) {
+            return Array.from(menu.querySelectorAll('[role="menuitem"]'))
+                .filter(el => el.offsetParent !== null);
+        }
+
+        function focusNextItem(items, currentIndex, direction) {
+            const nextIndex = (currentIndex + direction + items.length) % items.length;
+            items[nextIndex].focus();
+        }
+
+        menuButton.addEventListener('click', () => {
+            const expanded = menuButton.getAttribute('aria-expanded') === 'true';
+            if (expanded) {
+                closeMenu(mainMenu, menuButton);
+            } else {
+                openMenu(mainMenu, menuButton);
+                const items = getMenuItems(mainMenu);
+                if (items.length) items[0].focus();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            const currentMenu = active.closest('[role="menu"]');
+            if (!currentMenu) return;
+
+            const items = getMenuItems(currentMenu);
+            const index = items.indexOf(active);
+
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    focusNextItem(items, index, 1);
+                    break;
+
+                case 'ArrowUp':
+                    e.preventDefault();
+                    focusNextItem(items, index, -1);
+                    break;
+
+                case 'ArrowRight':
+                    e.preventDefault();
+                    const li = active.closest('li[aria-haspopup="true"]');
+                    if (li) {
+                        const btn = li.querySelector('button[role="menuitem"]');
+                        const submenu = btn?.nextElementSibling;
+                        openMenu(submenu, btn);
+                        const subItems = getMenuItems(submenu);
+                        if (subItems.length) subItems[0].focus();
+                    }
+                    break;
+
+                case 'ArrowLeft':
+                case 'Escape':
+                    e.preventDefault();
+                    const parentMenu = currentMenu.parentElement.closest('[role="menu"]');
+                    const parentLi = currentMenu.parentElement.closest('li[aria-haspopup="true"]');
+                    if (parentMenu && parentLi) {
+                        const parentBtn = parentLi.querySelector('button[role="menuitem"]');
+                        closeMenu(currentMenu, parentBtn);
+                        parentBtn.focus();
+                    } else {
+                        closeMenu(mainMenu, menuButton);
+                        menuButton.focus();
+                    }
+                    break;
+
+                case 'Enter':
+                case ' ':
+                    e.preventDefault();
+                    if (active.tagName === 'BUTTON') {
+                        const li = active.closest('li[aria-haspopup="true"]');
+                        const submenu = active.nextElementSibling;
+                        const isOpen = active.getAttribute('aria-expanded') === 'true';
+                        if (!isOpen) {
+                            openMenu(submenu, active);
+                            const subItems = getMenuItems(submenu);
+                            if (subItems.length) subItems[0].focus();
+                        } else {
+                            closeMenu(submenu, active);
+                        }
+                    } else {
+                        active.click();
+                    }
+                    break;
+            }
+        });
+
+        document.querySelectorAll('li[aria-haspopup="true"]').forEach(li => {
+            const btn = li.querySelector('button[role="menuitem"]');
+            const submenu = btn?.nextElementSibling;
+
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isOpen = btn.getAttribute('aria-expanded') === 'true';
+                if (isOpen) {
+                    closeMenu(submenu, btn);
+                } else {
+                    openMenu(submenu, btn);
+                    const subItems = getMenuItems(submenu);
+                    if (subItems.length) subItems[0].focus();
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!mainMenu.contains(e.target) && e.target !== menuButton) {
+                closeMenu(mainMenu, menuButton);
+                document.querySelectorAll('[role="menu"]').forEach(menu => {
+                    if (!menu.contains(e.target) && menu !== mainMenu) {
+                        const parentLi = menu.closest('li[aria-haspopup="true"]');
+                        if (parentLi) {
+                            const btn = parentLi.querySelector('button[role="menuitem"]');
+                            closeMenu(menu, btn);
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esempio Carosello Accessibile</title>
+  <style>
+    :root {
+      --accent-color: #006c8c;
+      --accent-bg: #e0f3f9;
+      --text-color: #1a1a1a;
+      --off-bg: #a9a9a9;
+      --knob-color: #fff;
+      --focus-ring: #003d4c;
+    }
+
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      color: var(--text-color);
+      margin: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .carousel {
+      position: relative;
+      max-width: 60vw;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      background: var(--accent-bg);
+      border: 2px solid var(--accent-color);
+    }
+
+    .carousel-viewport {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      touch-action: none;
+      pointer-events: none;
+    }
+
+    .carousel-slide {
+      min-width: 100%;
+      padding: 8rem 2rem;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      pointer-events: auto;
+    }
+
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      width: -webkit-fill-available;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+      left: 1rem;
+      right: 1rem;
+    }
+
+    .carousel-controls button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .carousel-controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .carousel-controls button:focus {
+      outline: 3px solid var(--focus-ring);
+    }
+
+    .carousel-indicators {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+      gap: 0.5rem;
+    }
+
+    .carousel-indicators button {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background-color: var(--off-bg);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    .carousel-indicators button:hover {
+      transform: scale(1.2);
+    }
+
+    .carousel-indicators button[aria-current="true"] {
+      background-color: var(--accent-color);
+    }
+
+    .settings {
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+
+    .settings label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--accent-color);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Carosello Accessibile</h1>
+
+  <div class="carousel" role="region" aria-roledescription="carousel">
+    <div class="carousel-viewport" id="carousel-slides">
+      <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide 1 di 3">
+        <p>Contenuto della slide 1</p>
+      </div>
+      <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide 2 di 3">
+        <p>Contenuto della slide 2</p>
+      </div>
+      <div class="carousel-slide" role="group" aria-roledescription="slide" aria-label="Slide 3 di 3">
+        <p>Contenuto della slide 3</p>
+      </div>
+    </div>
+
+    <div class="carousel-controls">
+      <button id="prevBtn" aria-label="Slide precedente">❮</button>
+      <button id="nextBtn" aria-label="Slide successiva">❯</button>
+    </div>
+
+    <div class="carousel-indicators" role="tablist">
+      <button role="tab" aria-label="Vai alla slide 1" aria-controls="carousel-slides" aria-selected="true" aria-current="true" tabindex="0"></button>
+      <button role="tab" aria-label="Vai alla slide 2" aria-controls="carousel-slides" aria-selected="false" tabindex="-1"></button>
+      <button role="tab" aria-label="Vai alla slide 3" aria-controls="carousel-slides" aria-selected="false" tabindex="-1"></button>
+    </div>
+  </div>
+
+  <div class="settings">
+    <label>
+      <input type="checkbox" id="loopToggle" checked />
+      Abilita loop
+    </label>
+  </div>
+
+  <div class="sr-only" aria-live="polite" id="carousel-status" role="status"></div>
+
+  <script>
+    const slides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.carousel-indicators button');
+    const viewport = document.getElementById('carousel-slides');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const loopToggle = document.getElementById('loopToggle');
+    const status = document.getElementById('carousel-status');
+
+    let currentIndex = 0;
+    let loopEnabled = loopToggle.checked;
+
+    function updateCarousel(index) {
+      viewport.style.transform = `translateX(-${index * 100}%)`;
+
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.removeAttribute('aria-hidden');
+          slide.removeAttribute('inert');
+        } else {
+          slide.setAttribute('aria-hidden', 'true');
+          slide.setAttribute('inert', '');
+        }
+      });
+
+      indicators.forEach((btn, i) => {
+        btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        btn.setAttribute('aria-current', i === index ? 'true' : 'false');
+        btn.tabIndex = i === index ? 0 : -1;
+      });
+
+      currentIndex = index;
+      updateButtons();
+      status.textContent = `Slide ${index + 1} di ${slides.length}`;
+    }
+
+    function updateButtons() {
+      if (!loopEnabled) {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === slides.length - 1;
+      } else {
+        prevBtn.disabled = false;
+        nextBtn.disabled = false;
+      }
+    }
+
+    prevBtn.addEventListener('click', () => {
+      let newIndex = currentIndex - 1;
+      if (newIndex < 0) {
+        newIndex = loopEnabled ? slides.length - 1 : 0;
+      }
+      updateCarousel(newIndex);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      let newIndex = currentIndex + 1;
+      if (newIndex >= slides.length) {
+        newIndex = loopEnabled ? 0 : slides.length - 1;
+      }
+      updateCarousel(newIndex);
+    });
+
+    indicators.forEach((btn, i) => {
+      btn.addEventListener('click', () => updateCarousel(i));
+    });
+
+    document.querySelector('.carousel-indicators').addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        let newIndex = currentIndex + (e.key === 'ArrowLeft' ? -1 : 1);
+        newIndex = (newIndex + slides.length) % slides.length;
+        indicators[newIndex].focus();
+        updateCarousel(newIndex);
+      }
+    });
+
+    loopToggle.addEventListener('change', () => {
+      loopEnabled = loopToggle.checked;
+      updateButtons();
+    });
+
+    updateCarousel(0);
+  </script>
+</body>
+</html>

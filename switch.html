@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esempio Switch Accessibile</title>
+  <style>
+    :root {
+      --accent-color: #006c8c;
+      --accent-bg: #e0f3f9;
+      --text-color: #1a1a1a;
+      --off-bg: #a9a9a9;
+      --knob-color: #fff;
+      --focus-ring: #003d4c;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #fff;
+      color: var(--text-color);
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .switch-button {
+      all: unset;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      cursor: pointer;
+    }
+
+    .switch-label {
+      font-size: 1rem;
+    }
+
+    .switch-visual {
+      width: 48px;
+      height: 24px;
+      background-color: var(--off-bg);
+      border-radius: 999px;
+      position: relative;
+      transition: background-color 0.25s ease;
+    }
+
+    .switch-knob {
+      width: 20px;
+      height: 20px;
+      background-color: var(--knob-color);
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.25s ease;
+    }
+
+    [role="switch"][aria-checked="true"] .switch-visual {
+      background-color: var(--accent-color);
+    }
+
+    [role="switch"][aria-checked="true"] .switch-knob {
+      transform: translateX(24px);
+    }
+
+    [role="switch"]:focus-visible .switch-visual {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div role="group" aria-labelledby="id-group-label">
+    <h1 id="id-group-label">Controllo domotica</h1>
+
+    <button type="button" class="switch-button" role="switch" aria-checked="true">
+      <span class="switch-label">Luci salotto</span>
+      <span class="switch-visual">
+        <span class="switch-knob"></span>
+      </span>
+      <span class="visually-hidden">On</span>
+    </button>
+
+    <button type="button" class="switch-button" role="switch" aria-checked="false">
+      <span class="switch-label">Luci veranda</span>
+      <span class="switch-visual">
+        <span class="switch-knob"></span>
+      </span>
+      <span class="visually-hidden">Off</span>
+    </button>
+  </div>
+
+  <script>
+    document.querySelectorAll('[role="switch"]').forEach(button => {
+      button.addEventListener('click', () => {
+        const isChecked = button.getAttribute('aria-checked') === 'true';
+        button.setAttribute('aria-checked', String(!isChecked));
+        const stateLabel = button.querySelector('.visually-hidden');
+        stateLabel.textContent = !isChecked ? 'On' : 'Off';
+      });
+    });
+  </script>
+</body>
+</html>

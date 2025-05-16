@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Esempio Tab Accessibile</title>
+  <style>
+    :root {
+      --accent-color: #006c8c;
+      --accent-bg: #f3f8fa;
+      --text-color: #1a1a1a;
+      --border-color: #cccccc;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      line-height: 1.6;
+      background-color: #fff;
+      color: var(--text-color);
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .tabs h1 {
+      margin-bottom: 1rem;
+    }
+
+    [role="tablist"] {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+
+    [role="tab"] {
+      background-color: #fff;
+      border: 2px solid var(--accent-color);
+      border-radius: 0.5rem 0.5rem 0 0;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      color: var(--accent-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    [role="tab"][aria-selected="true"] {
+      background-color: var(--accent-color);
+      color: #fff;
+      outline: none;
+    }
+
+    [role="tab"]:focus {
+      outline: 2px dashed var(--accent-color);
+      outline-offset: 2px;
+    }
+
+    [role="tabpanel"] {
+      border: 2px solid var(--accent-color);
+      border-radius: 0 0 0.5rem 0.5rem;
+      background-color: var(--accent-bg);
+      padding: 1rem;
+    }
+
+    .is-hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="tabs">
+    <h1 id="tablist-1">Tipi di Fiori</h1>
+    <div role="tablist" aria-labelledby="tablist-1" class="automatic">
+      <button id="tab-1" type="button" role="tab" aria-selected="true" aria-controls="tabpanel-1">
+        <span class="focus">Rosa</span>
+      </button>
+      <button id="tab-2" type="button" role="tab" aria-selected="false" aria-controls="tabpanel-2" tabindex="-1">
+        <span class="focus">Girasole</span>
+      </button>
+      <button id="tab-3" type="button" role="tab" aria-selected="false" aria-controls="tabpanel-3" tabindex="-1">
+        <span class="focus">Orchidea</span>
+      </button>
+      <button id="tab-4" type="button" role="tab" aria-selected="false" aria-controls="tabpanel-4" tabindex="-1">
+        <span class="focus">Lavanda</span>
+      </button>
+    </div>
+
+    <div id="tabpanel-1" role="tabpanel" tabindex="0" aria-labelledby="tab-1">
+      <p>
+        La rosa è uno dei fiori più conosciuti al mondo e simbolo universale di amore e bellezza.
+        Esistono numerose varietà di rose, con colori e profumi diversi, coltivate in giardini e usate in composizioni floreali.
+      </p>
+    </div>
+    <div id="tabpanel-2" role="tabpanel" tabindex="0" aria-labelledby="tab-2" class="is-hidden">
+      <p>
+        Il girasole è noto per la sua grande corolla gialla e per la capacità di seguire il movimento del sole durante la giornata.
+        Simbolo di energia e positività, è molto amato anche per l’olio ricavato dai suoi semi.
+      </p>
+    </div>
+    <div id="tabpanel-3" role="tabpanel" tabindex="0" aria-labelledby="tab-3" class="is-hidden">
+      <p>
+        L’orchidea è un fiore elegante e sofisticato, spesso associato a bellezza rara e raffinatezza.
+        Cresce in molte parti del mondo e comprende migliaia di specie dai colori e forme sorprendenti.
+      </p>
+    </div>
+    <div id="tabpanel-4" role="tabpanel" tabindex="0" aria-labelledby="tab-4" class="is-hidden">
+      <p>
+        La lavanda è conosciuta per il suo profumo rilassante e le proprietà calmanti. Viene utilizzata in cosmetici, tisane e profumatori.
+        I suoi fiori viola sbocciano in estate, creando paesaggi suggestivi nei campi coltivati.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tablist = document.querySelector('[role="tablist"]');
+      const tabs = tablist.querySelectorAll('[role="tab"]');
+      const panels = document.querySelectorAll('[role="tabpanel"]');
+
+      function activateTab(tab) {
+        tabs.forEach(t => {
+          t.setAttribute('aria-selected', 'false');
+          t.setAttribute('tabindex', '-1');
+        });
+
+        panels.forEach(p => {
+          p.classList.add('is-hidden');
+        });
+
+        tab.setAttribute('aria-selected', 'true');
+        tab.setAttribute('tabindex', '0');
+        const panelId = tab.getAttribute('aria-controls');
+        document.getElementById(panelId).classList.remove('is-hidden');
+        tab.focus();
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => activateTab(tab));
+      });
+
+      tablist.addEventListener('keydown', (e) => {
+        const currentIndex = Array.from(tabs).indexOf(document.activeElement);
+        let newIndex = null;
+
+        if (e.key === 'ArrowRight') {
+          newIndex = (currentIndex + 1) % tabs.length;
+        } else if (e.key === 'ArrowLeft') {
+          newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        } else if (e.key === 'Home') {
+          newIndex = 0;
+        } else if (e.key === 'End') {
+          newIndex = tabs.length - 1;
+        }
+
+        if (newIndex !== null) {
+          e.preventDefault();
+          activateTab(tabs[newIndex]);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
